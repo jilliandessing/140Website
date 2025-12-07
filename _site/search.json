@@ -1,0 +1,65 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Jillian Dessing",
+    "section": "",
+    "text": "Jillian Dessing is an undergraduate at UCLA studying Statistics & Data Science and Climate Science, with a growing interest in actuarial science. She is interested in applying climate and statistical modeling to understand how extreme weather and climate change influence risk in property and casualty insurance. Jillian is seeking opportunities that integrate actuarial modeling, risk analytics, and climate science.\nWhen she’s not studying, Jillian enjoys walking on the beach and catching sunsets with her family in San Diego, and seeing the latest Hollywood blockbuster movies with her friends in Los Angeles.\nDOWNLOAD CV"
+  },
+  {
+    "objectID": "index.html#education",
+    "href": "index.html#education",
+    "title": "Jillian Dessing",
+    "section": "Education",
+    "text": "Education\nUniversity of California, Los Angeles | Los Angeles, CA Bachelor of Science in Statistics & Data Science, Climate Science | Sept 2022 - June 2026"
+  },
+  {
+    "objectID": "index.html#experience",
+    "href": "index.html#experience",
+    "title": "Jillian Dessing",
+    "section": "Experience",
+    "text": "Experience\nCasualty Actuarial Society Student Central Summer Program | June 2025 - August 2025"
+  },
+  {
+    "objectID": "projects.html",
+    "href": "projects.html",
+    "title": "Projects",
+    "section": "",
+    "text": "This project analyzed daily near-surface air temperature from CMIP6 climate model output under the SSP585 high-emissions scenario. I selected a geographic region, computed daily mean, minimum, and maximum temperatures, and identified periods of extreme heat. Time-series plots and distribution analyses reveal variability and tail behavior, highlighting how often heat extremes occur and when they are most likely to develop.\nThe project strengthened my skills in scientific Python, including xarray, numpy, and geospatial filtering, as well as interpreting climate data through visualizations. The results provide insight into evolving heat extremes with potential relevance for climate risk, insurance exposure, energy demand, and public health.\nView Notebook"
+  },
+  {
+    "objectID": "projects.html#analyzing-daily-temperature-extremes-from-climate-models-using-python",
+    "href": "projects.html#analyzing-daily-temperature-extremes-from-climate-models-using-python",
+    "title": "Projects",
+    "section": "",
+    "text": "This project analyzed daily near-surface air temperature from CMIP6 climate model output under the SSP585 high-emissions scenario. I selected a geographic region, computed daily mean, minimum, and maximum temperatures, and identified periods of extreme heat. Time-series plots and distribution analyses reveal variability and tail behavior, highlighting how often heat extremes occur and when they are most likely to develop.\nThe project strengthened my skills in scientific Python, including xarray, numpy, and geospatial filtering, as well as interpreting climate data through visualizations. The results provide insight into evolving heat extremes with potential relevance for climate risk, insurance exposure, energy demand, and public health.\nView Notebook"
+  },
+  {
+    "objectID": "projects.html#analysis-of-extreme-precipitation-in-tropical-cyclones-research-presentation",
+    "href": "projects.html#analysis-of-extreme-precipitation-in-tropical-cyclones-research-presentation",
+    "title": "Projects",
+    "section": "Analysis of Extreme Precipitation in Tropical Cyclones (Research Presentation)",
+    "text": "Analysis of Extreme Precipitation in Tropical Cyclones (Research Presentation)\nThis project examined how climate change influences extreme precipitation, with a focus on tropical cyclones and a detailed analysis of Hurricane Harvey. Peer-reviewed observational studies and high-resolution climate model results were used to evaluate global trends in precipitation extremes, the physical drivers of intensifying rainfall rates, and the role of anthropogenic warming in amplifying storm impacts. This work deepened my understanding of extreme-event behavior while also strengthening general research abilities such as interpreting climate datasets, assessing attribution methods, and presenting atmospheric processes clearly.\nDownload the full presentation (PDF)"
+  },
+  {
+    "objectID": "projects.html#modeling-major-hurricane-likelihood-from-early-meteorological-predictors-research-presentation",
+    "href": "projects.html#modeling-major-hurricane-likelihood-from-early-meteorological-predictors-research-presentation",
+    "title": "Projects",
+    "section": "Modeling Major Hurricane Likelihood from Early Meteorological Predictors (Research Presentation)",
+    "text": "Modeling Major Hurricane Likelihood from Early Meteorological Predictors (Research Presentation)\nThis project used storm-track records from the NOAA International Best Track Archive for Climate Stewardship (IBTrACS). After extensive data cleaning and engineering of key variables such as central pressure, wind speed, storm position, and regional classifications, statistical and machine-learning models were applied to investigate whether early meteorological conditions can predict the likelihood of a cyclone intensifying into a major hurricane. Logistic regression and random forest models were evaluated using AUC, balanced accuracy, and optimal classification thresholds, revealing the variables most strongly associated with major storm development and demonstrating the effectiveness of predictive modeling in early-stage hurricane assessment.\nDownload the full presentation (PDF)"
+  },
+  {
+    "objectID": "projects.html#modeling-county-level-income-and-socioeconomic-patterns-using-multiple-regression",
+    "href": "projects.html#modeling-county-level-income-and-socioeconomic-patterns-using-multiple-regression",
+    "title": "Projects",
+    "section": "Modeling County-Level Income and Socioeconomic Patterns Using Multiple Regression",
+    "text": "Modeling County-Level Income and Socioeconomic Patterns Using Multiple Regression\nThis project developed a multiple linear regression model to explain variation in county-level per-capita income using demographic, educational, and economic indicators. The analysis included extensive preprocessing, transformation of skewed variables, diagnostic checks for multicollinearity and heteroscedasticity, and selection of the final model using statistical criteria. By evaluating coefficient significance, model assumptions, and predictive performance, the project demonstrated how regression can be used to quantify relationships among socioeconomic variables and identify the strongest predictors of income at the county level.\nDownload Report (PDF)"
+  },
+  {
+    "objectID": "projects.html#predicting-2020-u.s.-election-outcomes-with-classification-and-machine-learning",
+    "href": "projects.html#predicting-2020-u.s.-election-outcomes-with-classification-and-machine-learning",
+    "title": "Projects",
+    "section": "Predicting 2020 U.S. Election Outcomes with Classification and Machine Learning",
+    "text": "Predicting 2020 U.S. Election Outcomes with Classification and Machine Learning\nThis project used county-level demographic and economic data to predict the winner of the 2020 U.S. presidential election. After substantial feature engineering—converting demographic counts to proportions, log-transforming skewed variables, imputing missing data, and removing redundant predictors—several classification models were trained, including penalized logistic regression, random forests, boosted trees, KNN, and stacked ensembles. Model performance was compared using 10-fold cross-validation, with tuned boosted tree and stacked models achieving the highest accuracy. The work highlighted how preprocessing decisions, hyperparameter tuning, and model selection influence predictive performance in high-dimensional classification problems.\nDownload Report (PDF)"
+  }
+]
