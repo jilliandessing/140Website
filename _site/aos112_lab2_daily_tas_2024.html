@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Lab 2b: Calculating daily temperature statistics and looking at extremes – Jillian Dessing</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f93c2b1f3f0577f377aefa4848a86a36.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Jillian Dessing</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./projects.html"> 
+<span class="menu-text">Projects</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#set-up-details-of-analysis" id="toc-set-up-details-of-analysis" class="nav-link active" data-scroll-target="#set-up-details-of-analysis">Set up details of analysis</a>
+  <ul class="collapse">
+  <li><a href="#declare-the-root-directory-and-names-of-the-files-you-want-to-open" id="toc-declare-the-root-directory-and-names-of-the-files-you-want-to-open" class="nav-link" data-scroll-target="#declare-the-root-directory-and-names-of-the-files-you-want-to-open">Declare the root directory and names of the files you want to open</a></li>
+  <li><a href="#you-can-choose-which-model-to-analyze" id="toc-you-can-choose-which-model-to-analyze" class="nav-link" data-scroll-target="#you-can-choose-which-model-to-analyze">You can choose which model to analyze</a></li>
+  <li><a href="#define-the-region-and-season-to-analyze-use-one-thats-there-or-create-your-own" id="toc-define-the-region-and-season-to-analyze-use-one-thats-there-or-create-your-own" class="nav-link" data-scroll-target="#define-the-region-and-season-to-analyze-use-one-thats-there-or-create-your-own">Define the region and season to analyze (use one that’s there, or create your own)</a></li>
+  <li><a href="#plot-this-latitudelongitude-range-to-visualize-it" id="toc-plot-this-latitudelongitude-range-to-visualize-it" class="nav-link" data-scroll-target="#plot-this-latitudelongitude-range-to-visualize-it">Plot this latitude/longitude range to visualize it</a></li>
+  <li><a href="#open-the-data-here" id="toc-open-the-data-here" class="nav-link" data-scroll-target="#open-the-data-here">Open the data here</a></li>
+  <li><a href="#get-latitude-and-longitude-values-where-the-region-is-located" id="toc-get-latitude-and-longitude-values-where-the-region-is-located" class="nav-link" data-scroll-target="#get-latitude-and-longitude-values-where-the-region-is-located">Get latitude and longitude values where the region is located</a></li>
+  <li><a href="#choose-model-and-define-the-time-periods-to-analyze" id="toc-choose-model-and-define-the-time-periods-to-analyze" class="nav-link" data-scroll-target="#choose-model-and-define-the-time-periods-to-analyze">Choose model and define the time periods to analyze</a></li>
+  </ul></li>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">==================================================</a></li>
+  <li><a href="#histograms-of-daily-surface-air-temperature" id="toc-histograms-of-daily-surface-air-temperature" class="nav-link" data-scroll-target="#histograms-of-daily-surface-air-temperature">Histograms of daily surface air temperature</a></li>
+  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">==================================================</a>
+  <ul class="collapse">
+  <li><a href="#calculate-the-means-of-the-time-periods-for-your-region" id="toc-calculate-the-means-of-the-time-periods-for-your-region" class="nav-link" data-scroll-target="#calculate-the-means-of-the-time-periods-for-your-region">Calculate the means of the time periods for your region</a></li>
+  <li><a href="#compute-your-favorite-percentile-in-each-time-period" id="toc-compute-your-favorite-percentile-in-each-time-period" class="nav-link" data-scroll-target="#compute-your-favorite-percentile-in-each-time-period">Compute your favorite percentile in each time period</a></li>
+  <li><a href="#print-out-these-percentiles-how-is-the-distribution-changing" id="toc-print-out-these-percentiles-how-is-the-distribution-changing" class="nav-link" data-scroll-target="#print-out-these-percentiles-how-is-the-distribution-changing">Print out these percentiles; how is the distribution changing?</a></li>
+  <li><a href="#define-the-bins-and-calculate-the-histograms" id="toc-define-the-bins-and-calculate-the-histograms" class="nav-link" data-scroll-target="#define-the-bins-and-calculate-the-histograms">Define the bins and calculate the histograms</a></li>
+  <li><a href="#make-histogram-plots-linear-y-scale" id="toc-make-histogram-plots-linear-y-scale" class="nav-link" data-scroll-target="#make-histogram-plots-linear-y-scale">Make histogram plots (linear y-scale)</a></li>
+  <li><a href="#make-combined-linear-y-scale-plot" id="toc-make-combined-linear-y-scale-plot" class="nav-link" data-scroll-target="#make-combined-linear-y-scale-plot">Make combined, linear y-scale plot</a></li>
+  <li><a href="#make-histogram-plots-showing-mean-and-high-percentile-with-log-y-axis-option" id="toc-make-histogram-plots-showing-mean-and-high-percentile-with-log-y-axis-option" class="nav-link" data-scroll-target="#make-histogram-plots-showing-mean-and-high-percentile-with-log-y-axis-option">Make histogram plots showing mean and high percentile with log y-axis option</a></li>
+  <li><a href="#make-combined-histogram-plot-showing-high-percentile-with-option-for-log-y-scale" id="toc-make-combined-histogram-plot-showing-high-percentile-with-option-for-log-y-scale" class="nav-link" data-scroll-target="#make-combined-histogram-plot-showing-high-percentile-with-option-for-log-y-scale">Make combined histogram plot showing high percentile, with option for log y-scale</a></li>
+  <li><a href="#calculate-the-change-of-the-mean-of-the-distributions" id="toc-calculate-the-change-of-the-mean-of-the-distributions" class="nav-link" data-scroll-target="#calculate-the-change-of-the-mean-of-the-distributions">Calculate the change of the mean of the distributions</a></li>
+  <li><a href="#calculate-how-the-value-at-a-given-historical-percentile-changes-in-the-ssp-8.5-runs" id="toc-calculate-how-the-value-at-a-given-historical-percentile-changes-in-the-ssp-8.5-runs" class="nav-link" data-scroll-target="#calculate-how-the-value-at-a-given-historical-percentile-changes-in-the-ssp-8.5-runs">Calculate how the value at a given historical percentile changes in the ssp 8.5 runs</a></li>
+  <li><a href="#count-the-number-of-occurrences-above-this-percentile-value" id="toc-count-the-number-of-occurrences-above-this-percentile-value" class="nav-link" data-scroll-target="#count-the-number-of-occurrences-above-this-percentile-value">Count the number of occurrences above this percentile value</a></li>
+  </ul></li>
+  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">==================================================</a></li>
+  <li><a href="#extreme-value-calculations" id="toc-extreme-value-calculations" class="nav-link" data-scroll-target="#extreme-value-calculations">Extreme value calculations</a></li>
+  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">==================================================</a>
+  <ul class="collapse">
+  <li><a href="#before-we-do-any-calculations-lets-visualize-what-annual-extremes-look-like" id="toc-before-we-do-any-calculations-lets-visualize-what-annual-extremes-look-like" class="nav-link" data-scroll-target="#before-we-do-any-calculations-lets-visualize-what-annual-extremes-look-like">Before we do any calculations, let’s visualize what annual extremes look like</a></li>
+  <li><a href="#collect-annual-max-values-for-historical-temperature" id="toc-collect-annual-max-values-for-historical-temperature" class="nav-link" data-scroll-target="#collect-annual-max-values-for-historical-temperature">Collect annual max values for historical temperature</a></li>
+  <li><a href="#create-extreme-value-distributions" id="toc-create-extreme-value-distributions" class="nav-link" data-scroll-target="#create-extreme-value-distributions">Create extreme value distributions</a></li>
+  <li><a href="#calculate-magnitudes-of-return-intervals" id="toc-calculate-magnitudes-of-return-intervals" class="nav-link" data-scroll-target="#calculate-magnitudes-of-return-intervals">Calculate magnitudes of return intervals</a></li>
+  <li><a href="#from-the-return-period-of-events-above-the-specified-threshold-calculate-risk-ratio-etc." id="toc-from-the-return-period-of-events-above-the-specified-threshold-calculate-risk-ratio-etc." class="nav-link" data-scroll-target="#from-the-return-period-of-events-above-the-specified-threshold-calculate-risk-ratio-etc.">From the return period of events above the specified threshold, calculate risk ratio etc.</a></li>
+  <li><a href="#plot-these-results" id="toc-plot-these-results" class="nav-link" data-scroll-target="#plot-these-results">Plot these results</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lab 2b: Calculating daily temperature statistics and looking at extremes</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="cell-2" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">## to use the landmask feature go to your terminal and type:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># conda activate yourenvironmentname</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># conda install -c conda-forge regionmask</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np  <span class="co"># package for scientific computing---arrays, many basic calculations</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> xarray <span class="im">as</span> xr  <span class="co"># package for multi-dimensional arrays</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> cartopy.crs <span class="im">as</span> ccrs <span class="co"># to make maps</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> cartopy.feature <span class="im">as</span> cfeature</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt <span class="co"># plotting library</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.stats</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">## import regionmask</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># function to convert temperature units</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> convert_tas_units(dataarray):</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> units <span class="op">==</span> <span class="st">'C'</span>:</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dataarray <span class="op">-</span> <span class="fl">273.15</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> units <span class="op">==</span> <span class="st">'K'</span>:</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dataarray</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> units <span class="op">==</span> <span class="st">'F'</span>:</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (dataarray <span class="op">-</span> <span class="fl">273.15</span>) <span class="op">*</span> <span class="dv">9</span><span class="op">/</span><span class="dv">5</span> <span class="op">+</span> <span class="dv">32</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="set-up-details-of-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="set-up-details-of-analysis">Set up details of analysis</h2>
+<section id="declare-the-root-directory-and-names-of-the-files-you-want-to-open" class="level3">
+<h3 class="anchored" data-anchor-id="declare-the-root-directory-and-names-of-the-files-you-want-to-open">Declare the root directory and names of the files you want to open</h3>
+<ul>
+<li>Note 2 different time periods have been set up for these data:</li>
+<li><strong>hist</strong> (1850-2014)</li>
+<li><strong>ssp585</strong> (2015-2100)</li>
+<li>the data put out by the different modeling centers comes in different time blocks so we have preprocessed it after download from the ESGF to have these time periods for simplicity.</li>
+<li>CMIP6 model projections are for SSP5-8.5 (Shared Socioeconomic Pathway for greenhouse gas and aerosol forcings)</li>
+<li>CMIP5 model projections are for RCP 8.5 (Representative Concentration Pathway)</li>
+<li>Note that the SSP starts later than the data for the RCP so the early century time periods don’t match</li>
+</ul>
+</section>
+<section id="you-can-choose-which-model-to-analyze" class="level3">
+<h3 class="anchored" data-anchor-id="you-can-choose-which-model-to-analyze">You can choose which model to analyze</h3>
+<p>Do this by changing model_index= to a value 0 through 5. Values 0 through 3 are CMIP6 models; 4, 5 are CMIP5 models.</p>
+<div id="cell-5" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>time</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># select the SSP scenario (ssp585 or ssp370)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>ssp_scenario <span class="op">=</span> <span class="st">'ssp585'</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># variable to load</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>var <span class="op">=</span> <span class="st">'tas'</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># filepath for the CMIP6 data</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>filepath <span class="op">=</span> <span class="ss">f"/neelin2020/aos112/aos112_labs_current/aos112_lab2_data/</span><span class="sc">{</span>var<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># list of model names to load dynamically</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>possible_model_names <span class="op">=</span> [</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'BCC-CSM2-MR'</span>, </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 'CAMS-CSM1-0', </span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">'CanESM5'</span>, </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#     'CESM2',</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">'CESM2-WACCM'</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#     'E3SM-1-1', </span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">'GFDL-CM4'</span>, </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#     'GFDL-ESM4', </span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#     'HadGEM3-GC31-LL',</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#     'IPSL-CM6A-LR', </span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">'MIROC6'</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co"># dictionary to store datasets for each model</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>datasets <span class="op">=</span> {}</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># function to load a model's data for the selected SSP scenario</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_model_data(model):</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Use glob to find all matching files for the selected SSP scenario</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        hist_files <span class="op">=</span> glob.glob(<span class="ss">f"</span><span class="sc">{</span>filepath<span class="sc">}</span><span class="ss">/hist/</span><span class="sc">{</span>var<span class="sc">}</span><span class="ss">_day_</span><span class="sc">{</span>model<span class="sc">}</span><span class="ss">_historical_*.nc"</span>)</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        ssp_files <span class="op">=</span> glob.glob(<span class="ss">f"</span><span class="sc">{</span>filepath<span class="sc">}</span><span class="ss">/ssp585/</span><span class="sc">{</span>var<span class="sc">}</span><span class="ss">_day_</span><span class="sc">{</span>model<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>ssp_scenario<span class="sc">}</span><span class="ss">_*.nc"</span>)</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> hist_files <span class="kw">and</span> ssp_files:</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Load and combine historical and SSP datasets along the time dimension</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>            hist_ds <span class="op">=</span> xr.open_mfdataset(hist_files, combine<span class="op">=</span><span class="st">'by_coords'</span>)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>            ssp_ds <span class="op">=</span> xr.open_mfdataset(ssp_files, combine<span class="op">=</span><span class="st">'by_coords'</span>)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>            combined_ds <span class="op">=</span> xr.concat([hist_ds, ssp_ds], dim<span class="op">=</span><span class="st">'time'</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>            datasets[model] <span class="op">=</span> combined_ds</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Loaded and combined historical + </span><span class="sc">{</span>ssp_scenario<span class="sc">}</span><span class="ss"> for </span><span class="sc">{</span>model<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>       <span class="co"># # If only SSP files exist, load them</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>       <span class="co">#  elif ssp_files:</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>       <span class="co">#      datasets[model] = xr.open_mfdataset(ssp_files, combine='by_coords')</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>       <span class="co">#      print(f"Loaded {ssp_scenario} for {model}")</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>       <span class="co">#  # If only historical files exist, load them</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>       <span class="co">#  elif hist_files:</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>       <span class="co">#      datasets[model] = xr.open_mfdataset(hist_files, combine='by_coords')</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>       <span class="co">#      print(f"Loaded historical data for {model}")</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"No files found for </span><span class="sc">{</span>model<span class="sc">}</span><span class="ss"> with historical and </span><span class="sc">{</span>ssp_scenario<span class="sc">}</span><span class="ss"> data."</span>)</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Error loading </span><span class="sc">{</span>model<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 7: Load data for each model using the function</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model <span class="kw">in</span> possible_model_names:</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>    load_model_data(model)</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'List of models:'</span>, datasets.keys())</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>model_names <span class="op">=</span> <span class="bu">list</span>(datasets.keys()) <span class="co"># actual models that got loaded in </span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Loaded and combined historical + ssp585 for BCC-CSM2-MR
+Loaded and combined historical + ssp585 for CanESM5</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(
+/home/jilliandessing/.conda/envs/aos112_24/lib/python3.11/site-packages/xarray/conventions.py:428: SerializationWarning: variable 'tas' has multiple fill values {1e+20, 1e+20}, decoding all values to NaN.
+  new_vars[k] = decode_cf_variable(</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Loaded and combined historical + ssp585 for CESM2-WACCM
+Loaded and combined historical + ssp585 for GFDL-CM4
+Loaded and combined historical + ssp585 for MIROC6
+List of models: dict_keys(['BCC-CSM2-MR', 'CanESM5', 'CESM2-WACCM', 'GFDL-CM4', 'MIROC6'])
+CPU times: user 5.72 s, sys: 1.12 s, total: 6.84 s
+Wall time: 7.46 s</code></pre>
+</div>
+</div>
+</section>
+<section id="define-the-region-and-season-to-analyze-use-one-thats-there-or-create-your-own" class="level3">
+<h3 class="anchored" data-anchor-id="define-the-region-and-season-to-analyze-use-one-thats-there-or-create-your-own">Define the region and season to analyze (use one that’s there, or create your own)</h3>
+<ul>
+<li>you can check the map in the next cell to see if the boundaries are where you want, and adjust if needed</li>
+<li>give your region a mnemonic name for labels on plots later</li>
+</ul>
+<div id="cell-7" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">## REGION OPTIONS (add your own if needed) - these are in dictionary format, it stores all the different region and season opetions </span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>region_dict <span class="op">=</span> {<span class="st">'Global'</span>: [<span class="op">-</span><span class="dv">90</span>, <span class="dv">90</span>, <span class="dv">0</span>, <span class="dv">360</span>], </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">'CONUS'</span>: [<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">235</span>, <span class="dv">295</span>], <span class="co"># contiguous US</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">'Europe'</span>: [<span class="dv">35</span>, <span class="dv">55</span>, <span class="dv">0</span>, <span class="dv">60</span>], </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">'SE_Asia'</span>: [<span class="op">-</span><span class="dv">15</span>, <span class="dv">30</span>, <span class="dv">90</span>, <span class="dv">120</span>],</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>               <span class="st">'Gulf'</span> : [<span class="dv">15</span>, <span class="dv">40</span>, <span class="dv">260</span>, <span class="dv">295</span>]</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>               <span class="co"># add other regions in the format: 'region_name': [lat_start, lat_end, lon_start, lon_end]</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">## SEASON OPTIONS (add your own if needed)</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>season_dict <span class="op">=</span> {<span class="st">'Annual'</span>: np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span> ,<span class="dv">12</span>]),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>               <span class="st">'DJF'</span>: np.array([<span class="dv">12</span>, <span class="dv">1</span>, <span class="dv">2</span>]),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>               <span class="st">'MAM'</span>: np.array([<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>]),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>               <span class="st">'JJA'</span>: np.array([<span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>]),</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>               <span class="st">'SON'</span>: np.array([<span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span>]),</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>               <span class="st">'NDJF'</span>: np.array([<span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">1</span>, <span class="dv">2</span>]),</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>               <span class="st">'JJASON'</span>: np.array([<span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span>])</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>               <span class="co"># add other seasons in the format: 'season_name': np.array([month1, month2, month3, ...])</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>               }</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co"># SELECT REGION AND SEASON HERE</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>region <span class="op">=</span> <span class="st">'Gulf'</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>season <span class="op">=</span> <span class="st">'JJASON'</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co"># SELECT TEMPERATURE UNITS</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>units <span class="op">=</span> <span class="st">'C'</span> <span class="co"># 'C' for Celsius, 'K' for Kelvin, 'F' for Fahrenheit)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="plot-this-latitudelongitude-range-to-visualize-it" class="level3">
+<h3 class="anchored" data-anchor-id="plot-this-latitudelongitude-range-to-visualize-it">Plot this latitude/longitude range to visualize it</h3>
+<div id="cell-9" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">## Plots this latitude/longitude range to visualize it</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="dv">11</span>))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> plt.axes(projection<span class="op">=</span>ccrs.PlateCarree())</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax.coastlines()</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>ax.set_global() <span class="co"># uncomment this to zoom in on the selected region</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax.add_feature(cfeature.BORDERS, linestyle<span class="op">=</span><span class="st">':'</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>ax.add_feature(cfeature.STATES, linestyle<span class="op">=</span><span class="st">':'</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>ax.add_feature(cfeature.COASTLINE)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>ax.add_feature(cfeature.LAND, facecolor<span class="op">=</span><span class="st">'lightgray'</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>ax.add_feature(cfeature.OCEAN, facecolor<span class="op">=</span><span class="st">'lightblue'</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># add lat and lon ticks</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>gl <span class="op">=</span> ax.gridlines(crs<span class="op">=</span>ccrs.PlateCarree(), draw_labels<span class="op">=</span><span class="va">True</span>, linewidth<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">'gray'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>gl.top_labels <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>gl.right_labels <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># plot 4 lines around these coordinates </span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>box_lon <span class="op">=</span> [region_dict[region][<span class="dv">2</span>] <span class="op">-</span> <span class="dv">360</span>, region_dict[region][<span class="dv">3</span>] <span class="op">-</span> <span class="dv">360</span>, region_dict[region][<span class="dv">3</span>] <span class="op">-</span> <span class="dv">360</span>, region_dict[region][<span class="dv">2</span>] <span class="op">-</span> <span class="dv">360</span>, region_dict[region][<span class="dv">2</span>] <span class="op">-</span> <span class="dv">360</span>]</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>box_lat <span class="op">=</span> [region_dict[region][<span class="dv">0</span>], region_dict[region][<span class="dv">0</span>], region_dict[region][<span class="dv">1</span>], region_dict[region][<span class="dv">1</span>], region_dict[region][<span class="dv">0</span>]]</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>ax.plot(box_lon, box_lat, color<span class="op">=</span><span class="st">'red'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, transform<span class="op">=</span>ccrs.PlateCarree())</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>ax.set_title(region)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="aos112_lab2_daily_tas_2024_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="open-the-data-here" class="level3">
+<h3 class="anchored" data-anchor-id="open-the-data-here">Open the data here</h3>
+<ul>
+<li>This cell takes a minute to run due to large data sets</li>
+</ul>
+<div id="cell-11" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run this code so that the data gets subsetted to the region and season you selected</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>lat_start, lat_end, lon_start, lon_end <span class="op">=</span> region_dict[region]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>months <span class="op">=</span> season_dict[season]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># subset CMIP6 data</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>datasets_subset <span class="op">=</span> {}</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model <span class="kw">in</span> datasets.keys():</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Select the region</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    datasets_subset[model] <span class="op">=</span> datasets[model].sel(lat<span class="op">=</span><span class="bu">slice</span>(lat_start, lat_end), lon<span class="op">=</span><span class="bu">slice</span>(lon_start, lon_end))</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Select the season</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    datasets_subset[model] <span class="op">=</span> datasets_subset[model].sel(time<span class="op">=</span>datasets_subset[model].time.dt.month.isin(months))</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert temperature units</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    datasets_subset[model][<span class="st">'tas'</span>] <span class="op">=</span> convert_tas_units(datasets_subset[model][<span class="st">'tas'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="get-latitude-and-longitude-values-where-the-region-is-located" class="level3">
+<h3 class="anchored" data-anchor-id="get-latitude-and-longitude-values-where-the-region-is-located">Get latitude and longitude values where the region is located</h3>
+<div id="cell-13" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>lon_lo, lon_hi, lat_lo, lat_hi <span class="op">=</span> region_dict[region] <span class="co"># leftover variables from old code, needs to be streamlined</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="choose-model-and-define-the-time-periods-to-analyze" class="level3">
+<h3 class="anchored" data-anchor-id="choose-model-and-define-the-time-periods-to-analyze">Choose model and define the time periods to analyze</h3>
+<div id="cell-15" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>time</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this takes a few seconds to run </span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">## SELECT MODEL </span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>model_name <span class="op">=</span> <span class="st">'CESM2-WACCM'</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#specify whether you want to use a land mask i.e., within your region only include land points</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>use_landmask <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">## SELECT TIME PERIOD HERE</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># historical</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>hist_start   <span class="op">=</span> <span class="dv">1900</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>hist_end     <span class="op">=</span> <span class="dv">1999</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ssp 585</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>ssp_start   <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>ssp_end     <span class="op">=</span> <span class="dv">2099</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>hist_years <span class="op">=</span> <span class="bu">str</span>(hist_start) <span class="op">+</span> <span class="st">'-'</span> <span class="op">+</span> <span class="bu">str</span>(hist_end)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>ssp_years <span class="op">=</span> <span class="bu">str</span>(ssp_start) <span class="op">+</span> <span class="st">'-'</span> <span class="op">+</span> <span class="bu">str</span>(ssp_end)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co"># # # select the time period</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>model_hist_da <span class="op">=</span> datasets_subset[model_name][<span class="st">'tas'</span>].sel(time<span class="op">=</span><span class="bu">slice</span>(<span class="ss">f'</span><span class="sc">{</span>hist_start<span class="sc">}</span><span class="ss">-01-01'</span>, <span class="ss">f'</span><span class="sc">{</span>hist_end<span class="sc">}</span><span class="ss">-12-31'</span>))</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>model_ssp_da <span class="op">=</span> datasets_subset[model_name][<span class="st">'tas'</span>].sel(time<span class="op">=</span><span class="bu">slice</span>(<span class="ss">f'</span><span class="sc">{</span>ssp_start<span class="sc">}</span><span class="ss">-01-01'</span>, <span class="ss">f'</span><span class="sc">{</span>ssp_end<span class="sc">}</span><span class="ss">-12-31'</span>))</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="co"># landmask option</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> use_landmask <span class="op">==</span> <span class="va">True</span>:</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    land_mask <span class="op">=</span> regionmask.defined_regions.natural_earth_v5_0_0.land_110</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    land_only_mask_hist <span class="op">=</span> land_mask.mask(model_hist_da, lon_name<span class="op">=</span><span class="st">'lon'</span>, lat_name<span class="op">=</span><span class="st">'lat'</span>)</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    land_only_mask_ssp <span class="op">=</span> land_mask.mask(model_ssp_da, lon_name<span class="op">=</span><span class="st">'lon'</span>, lat_name<span class="op">=</span><span class="st">'lat'</span>)</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    model_hist_da <span class="op">=</span> model_hist_da.where(land_only_mask_hist <span class="op">==</span> <span class="dv">0</span>)  <span class="co"># 0 indicates land regions</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>    model_ssp_da <span class="op">=</span> model_ssp_da.where(land_only_mask_ssp <span class="op">==</span> <span class="dv">0</span>)  <span class="co"># 0 indicates land regions</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>model_hist <span class="op">=</span> model_hist_da.to_numpy()</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>model_ssp <span class="op">=</span> model_ssp_da.to_numpy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CPU times: user 1min 1s, sys: 3.51 s, total: 1min 5s
+Wall time: 46.4 s</code></pre>
+</div>
+</div>
+<div id="cell-16" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the first timestep so you can see the extent of the landmask </span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">18</span>, <span class="dv">6</span>))</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> fig.add_subplot(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, projection<span class="op">=</span>ccrs.PlateCarree())</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1.set_global() # this will zoom out to global view</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>ax1.add_feature(cfeature.COASTLINE)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>ax1.add_feature(cfeature.STATES)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>ax1.add_feature(cfeature.BORDERS)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># plotting code - edit vmin, vmax, and cmap values if necessary </span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>plt.pcolormesh(model_hist_da.lon, </span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>                     model_hist_da.lat, </span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>                     model_hist_da[<span class="dv">0</span>], </span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>                     transform<span class="op">=</span>ccrs.PlateCarree())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="aos112_lab2_daily_tas_2024_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="section" class="level1">
+<h1>==================================================</h1>
+</section>
+<section id="histograms-of-daily-surface-air-temperature" class="level1">
+<h1>Histograms of daily surface air temperature</h1>
+</section>
+<section id="section-1" class="level1">
+<h1>==================================================</h1>
+<section id="calculate-the-means-of-the-time-periods-for-your-region" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-the-means-of-the-time-periods-for-your-region">Calculate the means of the time periods for your region</h3>
+<ul>
+<li>Note that even though you start with daily data, this will be the mean over the season and decades that you chose, as well as over all grid points in the region you chose, so this is like the quantities computed in Lab 1</li>
+<li>Detail: the mean over the region is not an area-weighted average</li>
+</ul>
+<div id="cell-19" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>hist_mean <span class="op">=</span> np.mean(model_hist)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>ssp_mean <span class="op">=</span> np.mean(model_ssp)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># #values rounded to 2 decimal places</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">str</span>(<span class="bu">round</span>(hist_mean,<span class="dv">2</span>))<span class="op">+</span><span class="st">' C'</span><span class="op">+</span><span class="st">' is the mean for historical'</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">str</span>(<span class="bu">round</span>(ssp_mean,<span class="dv">2</span>))<span class="op">+</span><span class="st">' C'</span><span class="op">+</span><span class="st">' is the mean for ssp585'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>25.44 C is the mean for historical
+28.21 C is the mean for ssp585</code></pre>
+</div>
+</div>
+</section>
+<section id="compute-your-favorite-percentile-in-each-time-period" class="level3">
+<h3 class="anchored" data-anchor-id="compute-your-favorite-percentile-in-each-time-period">Compute your favorite percentile in each time period</h3>
+<div id="cell-21" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>perc_hi <span class="op">=</span> <span class="fl">99.</span> <span class="co"># 99th percentile</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>perc_lo <span class="op">=</span> <span class="fl">1.</span> <span class="co"># 1st percentile</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>value_hi_hist <span class="op">=</span> scipy.stats.scoreatpercentile(model_hist, perc_hi)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>value_lo_hist <span class="op">=</span> scipy.stats.scoreatpercentile(model_hist, perc_lo)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>value_hi_ssp <span class="op">=</span> scipy.stats.scoreatpercentile(model_ssp, perc_hi)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>value_lo_ssp <span class="op">=</span> scipy.stats.scoreatpercentile(model_ssp, perc_lo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="print-out-these-percentiles-how-is-the-distribution-changing" class="level3">
+<h3 class="anchored" data-anchor-id="print-out-these-percentiles-how-is-the-distribution-changing">Print out these percentiles; how is the distribution changing?</h3>
+<div id="cell-23" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">str</span>(<span class="bu">round</span>(value_hi_hist,<span class="dv">2</span>))<span class="op">+</span> units <span class="op">+</span><span class="st">' is the '</span><span class="op">+</span><span class="bu">str</span>(perc_hi)<span class="op">+</span><span class="st">'th percentile for historical'</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">str</span>(<span class="bu">round</span>(value_hi_ssp,<span class="dv">2</span>))<span class="op">+</span>units<span class="op">+</span><span class="st">' is the '</span><span class="op">+</span><span class="bu">str</span>(perc_hi)<span class="op">+</span><span class="st">'th percentile for ssp 8.5'</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">str</span>(<span class="bu">round</span>(value_lo_hist,<span class="dv">2</span>))<span class="op">+</span>units<span class="op">+</span><span class="st">' is the '</span><span class="op">+</span><span class="bu">str</span>(perc_lo)<span class="op">+</span><span class="st">'th percentile for historical'</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">str</span>(<span class="bu">round</span>(value_lo_ssp,<span class="dv">2</span>))<span class="op">+</span>units<span class="op">+</span><span class="st">' is the '</span><span class="op">+</span><span class="bu">str</span>(perc_lo)<span class="op">+</span><span class="st">'th percentile for ssp 8.5'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>33.28C is the 99.0th percentile for historical
+37.23C is the 99.0th percentile for ssp 8.5
+
+7.95C is the 1.0th percentile for historical
+11.01C is the 1.0th percentile for ssp 8.5</code></pre>
+</div>
+</div>
+</section>
+<section id="define-the-bins-and-calculate-the-histograms" class="level3">
+<h3 class="anchored" data-anchor-id="define-the-bins-and-calculate-the-histograms">Define the bins and calculate the histograms</h3>
+<ul>
+<li>Note that <code>density=True</code> means the resulting histogram will be a probability density function (frequency of occurrence normalized by total counts and by bin width).</li>
+<li>Setting <code>density=False</code> will give you the counts alone, and you can normalize this later as needed.</li>
+<li>default (bins=numpy.logspace…) uses bins that are constant in log(temperature) (i.e., they get wider for higher temperature). This helps to have enough values per bin to have statistical significance at high temperature.</li>
+<li>can also reduce the number of bins to have more counts per bin</li>
+</ul>
+<div id="cell-25" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Nbins<span class="op">=</span> <span class="dv">100</span> <span class="co">#100  #sets the number of bins for the histogram</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>bin_lo<span class="op">=</span> <span class="op">-</span><span class="dv">50</span> <span class="co">#sets the lowest bin value</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co">#  binning range set by the maximum value encountered times a factor slightly larger than one  e.g., 1.1 </span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.linspace(bin_lo,model_ssp.<span class="bu">max</span>(),Nbins) <span class="co"># linearly spaced bins</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>hist_histogram, bin_edges <span class="op">=</span> np.histogram(model_hist, bins<span class="op">=</span>bins, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>ssp_histogram, bin_edges <span class="op">=</span> np.histogram(model_ssp, bins<span class="op">=</span>bins, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>bin_centers <span class="op">=</span> (bin_edges[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> bin_edges[<span class="dv">1</span>:])<span class="op">/</span><span class="dv">2</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>bin_width <span class="op">=</span> np.diff(bin_edges)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-26" class="cell" data-execution_count="21">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># min and max values of the data</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>model_hist.<span class="bu">min</span>(), model_hist.<span class="bu">max</span>(), model_ssp.<span class="bu">min</span>(), model_ssp.<span class="bu">max</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<pre><code>(-10.292969, 41.492096, -5.9865417, 47.700348)</code></pre>
+</div>
+</div>
+</section>
+<section id="make-histogram-plots-linear-y-scale" class="level3">
+<h3 class="anchored" data-anchor-id="make-histogram-plots-linear-y-scale">Make histogram plots (linear y-scale)</h3>
+<ul>
+<li>with mean of the distribution shown on plot</li>
+</ul>
+<div id="cell-28" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.5</span>))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>fontsize<span class="op">=</span><span class="dv">12</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>ymax<span class="op">=</span><span class="fl">0.1</span> <span class="co">#sets the yscale for the figure; to zoom in y, change this value, e.g., ymax=.05</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> fig.add_subplot(<span class="dv">121</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>ax1.bar(bin_centers, hist_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'0.5'</span>, edgecolor<span class="op">=</span><span class="st">'0.5'</span>, label<span class="op">=</span><span class="st">'historical'</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>ax1.set_xlim(bins[<span class="dv">0</span>], bins[<span class="op">-</span><span class="dv">1</span>])  <span class="co">#only showing x-axis up to given value </span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>ax1.set_ylim(<span class="dv">0</span>, ymax)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>ax1.tick_params(labelsize<span class="op">=</span>fontsize)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Probability density'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Surface Air Temperature ('</span> <span class="op">+</span> units <span class="op">+</span> <span class="st">')'</span> , fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1.set_title('Histogram for '+model+' ('+season+')'+'\n('+hist_years+')\n'+region+' ('+str(lat_lo)+'-'+str(lat_hi)+degree_sign+' lat. / '+str(lon_lo)+'-'+str(lon_hi)+degree_sign+' lon.)', fontsize=fontsize)</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>ax1.scatter(x<span class="op">=</span>hist_mean, y<span class="op">=</span>ymax, s<span class="op">=</span><span class="dv">50</span>, marker<span class="op">=</span><span class="st">'o'</span>, clip_on<span class="op">=</span><span class="va">False</span>, color<span class="op">=</span><span class="st">'0.5'</span>, label<span class="op">=</span><span class="st">'hist. mean ('</span><span class="op">+</span><span class="st">'</span><span class="sc">{0:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(hist_mean)<span class="op">+</span> units<span class="op">+</span><span class="st">')'</span>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>ax1.grid()</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>handles, labels <span class="op">=</span> ax1.get_legend_handles_labels()</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>ax1.legend(handles[::<span class="op">-</span><span class="dv">1</span>], labels[::<span class="op">-</span><span class="dv">1</span>], loc<span class="op">=</span><span class="dv">0</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> fig.add_subplot(<span class="dv">122</span>)</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>ax2.bar(bin_centers, ssp_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'red'</span>, edgecolor<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'ssp585'</span>)</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>ax2.set_xlim(bins[<span class="dv">0</span>], bins[<span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>ax2.set_ylim(<span class="dv">0</span>, ymax)</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>ax2.tick_params(labelsize<span class="op">=</span>fontsize)</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Probability density'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'Surface Air Temperature (K)'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="co"># ax2.set_title('Histogram for '+model+' ('+season+')'+'\n('+ssp_years+')\n'+region+' ('+str(lat_lo)+'-'+str(lat_hi)+degree_sign+' lat. / '+str(lon_lo)+'-'+str(lon_hi)+degree_sign+' lon.)', fontsize=fontsize)</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>ax2.scatter(x<span class="op">=</span>ssp_mean, y<span class="op">=</span>ymax, s<span class="op">=</span><span class="dv">50</span>, marker<span class="op">=</span><span class="st">'o'</span>, clip_on<span class="op">=</span><span class="va">False</span>, c<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'ssp585'</span> <span class="op">+</span><span class="st">' mean ('</span><span class="op">+</span><span class="st">'</span><span class="sc">{0:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(ssp_mean)<span class="op">+</span> units<span class="op">+</span><span class="st">')'</span>)</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>ax2.grid()</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>handles, labels <span class="op">=</span> ax2.get_legend_handles_labels()</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>ax2.legend(handles[::<span class="op">-</span><span class="dv">1</span>], labels[::<span class="op">-</span><span class="dv">1</span>], loc<span class="op">=</span><span class="dv">0</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="aos112_lab2_daily_tas_2024_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="make-combined-linear-y-scale-plot" class="level3">
+<h3 class="anchored" data-anchor-id="make-combined-linear-y-scale-plot">Make combined, linear y-scale plot</h3>
+<div id="cell-30" class="cell" data-execution_count="23">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">5</span>,<span class="dv">5</span>))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>fontsize<span class="op">=</span><span class="dv">12</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>xmin<span class="op">=-</span><span class="dv">50</span>  <span class="co"># to zoom in x, change this value</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>xmax<span class="op">=</span><span class="dv">50</span>  <span class="co"># to zoom in x, change this value</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>ymax<span class="op">=</span><span class="fl">0.1</span> <span class="co">#sets the yscale for the figure; to zoom in y, change this value, e.g., ymax=.05</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(<span class="dv">111</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>ax.bar(bin_centers, hist_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'0'</span>, lw<span class="op">=</span><span class="dv">0</span>, label<span class="op">=</span><span class="st">'hist. ('</span><span class="op">+</span>hist_years<span class="op">+</span><span class="st">')'</span>, zorder<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>ax.bar(bin_centers, ssp_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'red'</span>, lw<span class="op">=</span><span class="dv">0</span>, label<span class="op">=</span><span class="st">'ssp585'</span> <span class="op">+</span><span class="st">' ('</span><span class="op">+</span>ssp_years<span class="op">+</span><span class="st">')'</span>, zorder<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(xmin, xmax) </span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, ymax)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Probability density'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Surface Air Temperature (K)'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Histograms for '</span><span class="op">+</span>model_name<span class="op">+</span><span class="st">' ('</span><span class="op">+</span>season<span class="op">+</span><span class="st">')'</span><span class="op">+</span><span class="st">'</span><span class="ch">\n</span><span class="st">('</span><span class="op">+</span>hist_years<span class="op">+</span><span class="st">') vs. ('</span><span class="op">+</span>ssp_years<span class="op">+</span><span class="st">')</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span>region, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="co"># add means</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>ax.scatter(x<span class="op">=</span>hist_mean, y<span class="op">=</span>ymax, s<span class="op">=</span><span class="dv">50</span>, marker<span class="op">=</span><span class="st">'o'</span>, clip_on<span class="op">=</span><span class="va">False</span>, color<span class="op">=</span><span class="st">'0.5'</span>, label<span class="op">=</span><span class="st">'hist. mean ('</span><span class="op">+</span><span class="st">'</span><span class="sc">{0:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(hist_mean)<span class="op">+</span><span class="st">' K)'</span>)</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>ax.scatter(x<span class="op">=</span>ssp_mean, y<span class="op">=</span>ymax, s<span class="op">=</span><span class="dv">50</span>, marker<span class="op">=</span><span class="st">'o'</span>, clip_on<span class="op">=</span><span class="va">False</span>, c<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'ssp585'</span> <span class="op">+</span><span class="st">' mean ('</span><span class="op">+</span><span class="st">'</span><span class="sc">{0:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(ssp_mean)<span class="op">+</span><span class="st">' K)'</span>)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>ax.tick_params(labelsize<span class="op">=</span>fontsize)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>handles, labels <span class="op">=</span> ax.get_legend_handles_labels()</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>ax.legend(handles[::<span class="op">-</span><span class="dv">1</span>], labels[::<span class="op">-</span><span class="dv">1</span>], loc<span class="op">=</span><span class="dv">0</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>ax.set_axisbelow(<span class="va">True</span>)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>ax.grid()</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="aos112_lab2_daily_tas_2024_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="make-histogram-plots-showing-mean-and-high-percentile-with-log-y-axis-option" class="level3">
+<h3 class="anchored" data-anchor-id="make-histogram-plots-showing-mean-and-high-percentile-with-log-y-axis-option">Make histogram plots showing mean and high percentile with log y-axis option</h3>
+<ul>
+<li>marks the mean value with a dot and your chosen high percentile value with a vertical line</li>
+<li>linear scale is shown if log_y_axis=False</li>
+<li>log y-scale plots are less useful for temperature than for precipitation unless you want to see really low probability events, or check if the distribution is close to Gaussian</li>
+<li>if you want to turn off a code cell change it to a non-code cell type (to turn it on/off, click in it and then choose Cell&gt;cell type&gt;code or raw).</li>
+</ul>
+<div id="cell-32" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>log_y_axis<span class="op">=</span><span class="va">True</span>  <span class="co">#set this to False for a linear y-axis showing the high percentile</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.5</span>))</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>fontsize<span class="op">=</span><span class="dv">12</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>xmin<span class="op">=-</span><span class="dv">50</span>  <span class="co"># to zoom in x, change this value</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>xmax<span class="op">=</span><span class="dv">50</span>  <span class="co"># to zoom in x, change this value</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>ymax<span class="op">=</span><span class="fl">0.1</span> <span class="co">#sets the yscale for the figure</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> fig.add_subplot(<span class="dv">121</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>ax1.bar(bin_centers, hist_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'0.5'</span>, edgecolor<span class="op">=</span><span class="st">'0.5'</span>, label<span class="op">=</span><span class="st">'historical'</span>)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>ax1.set_xlim(xmin, xmax)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>ax1.set_ylim(<span class="dv">10</span><span class="op">**-</span><span class="fl">8.5</span>, ymax)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>ax1.tick_params(labelsize<span class="op">=</span>fontsize)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Probability density'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Surface Air Temperature (K)'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> log_y_axis:</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    ax1.set_yscale(<span class="st">'log'</span>)   <span class="co">#if uncommented, this sets the log y-scale (first subplot)</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">'Histogram for '</span><span class="op">+</span>model_name<span class="op">+</span><span class="st">' ('</span><span class="op">+</span>season<span class="op">+</span><span class="st">')'</span><span class="op">+</span><span class="st">'</span><span class="ch">\n</span><span class="st">('</span><span class="op">+</span>hist_years<span class="op">+</span><span class="st">')</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span>region, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>ax1.axvline(value_hi_hist, lw<span class="op">=</span><span class="dv">2</span>, c<span class="op">=</span><span class="st">'0'</span>)</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>t<span class="op">=</span>ax1.text(s<span class="op">=</span><span class="st">'</span><span class="sc">{:.2f}</span><span class="st">'</span>.<span class="bu">format</span>(value_hi_hist)<span class="op">+</span><span class="st">'K</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span><span class="bu">str</span>(perc_hi)<span class="op">+</span><span class="st">'%'</span>, ha<span class="op">=</span><span class="st">'left'</span>, va<span class="op">=</span><span class="st">'top'</span>, x<span class="op">=</span>value_hi_hist<span class="op">+</span><span class="dv">5</span>, y<span class="op">=</span><span class="dv">10</span><span class="op">**-</span><span class="dv">2</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>t.set_bbox(<span class="bu">dict</span>(color<span class="op">=</span><span class="st">'1'</span>, alpha<span class="op">=</span><span class="fl">0.75</span>))</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>ax1.scatter(x<span class="op">=</span>hist_mean, y<span class="op">=</span>ymax, s<span class="op">=</span><span class="dv">50</span>, marker<span class="op">=</span><span class="st">'o'</span>, clip_on<span class="op">=</span><span class="va">False</span>, color<span class="op">=</span><span class="st">'0.5'</span>, label<span class="op">=</span><span class="st">'hist. mean ('</span><span class="op">+</span><span class="st">'</span><span class="sc">{0:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(hist_mean)<span class="op">+</span><span class="st">' mm/day)'</span>)</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>ax1.grid()</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a><span class="co">#legend not showing so don't see labels</span></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> fig.add_subplot(<span class="dv">122</span>)</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>ax2.bar(bin_centers, ssp_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'red'</span>, edgecolor<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'ssp585'</span>)</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>ax2.set_xlim(xmin, xmax)</span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>ax2.set_ylim(<span class="dv">10</span><span class="op">**-</span><span class="fl">8.5</span>, ymax)</span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>ax2.tick_params(labelsize<span class="op">=</span>fontsize)</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Probability density'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'Surface Air Temperature (K)'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> log_y_axis:</span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>    ax2.set_yscale(<span class="st">'log'</span>)    <span class="co">#if uncommented, this sets log y-scale (second subplot)</span></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'Histogram for '</span><span class="op">+</span>model_name<span class="op">+</span><span class="st">' ('</span><span class="op">+</span>season<span class="op">+</span><span class="st">')'</span><span class="op">+</span><span class="st">'</span><span class="ch">\n</span><span class="st">('</span><span class="op">+</span>ssp_years<span class="op">+</span><span class="st">')</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span>region, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>ax2.axvline(value_hi_ssp, lw<span class="op">=</span><span class="dv">2</span>, c<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>t<span class="op">=</span>ax2.text(s<span class="op">=</span><span class="st">'</span><span class="sc">{:.2f}</span><span class="st">'</span>.<span class="bu">format</span>(value_hi_ssp)<span class="op">+</span><span class="st">'K</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span><span class="bu">str</span>(perc_hi)<span class="op">+</span><span class="st">'%'</span>, ha<span class="op">=</span><span class="st">'left'</span>, va<span class="op">=</span><span class="st">'top'</span>, x<span class="op">=</span>value_hi_ssp<span class="op">+</span><span class="dv">5</span>, y<span class="op">=</span><span class="dv">10</span><span class="op">**-</span><span class="dv">2</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>t.set_bbox(<span class="bu">dict</span>(color<span class="op">=</span><span class="st">'1'</span>, alpha<span class="op">=</span><span class="fl">0.75</span>))</span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>ax2.scatter(x<span class="op">=</span>ssp_mean, y<span class="op">=</span>ymax, s<span class="op">=</span><span class="dv">50</span>, marker<span class="op">=</span><span class="st">'o'</span>, clip_on<span class="op">=</span><span class="va">False</span>, c<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'ssp585'</span> <span class="op">+</span><span class="st">' mean ('</span><span class="op">+</span><span class="st">'</span><span class="sc">{0:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(ssp_mean)<span class="op">+</span><span class="st">' mm/day)'</span>)</span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>ax2.grid()</span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="aos112_lab2_daily_tas_2024_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="make-combined-histogram-plot-showing-high-percentile-with-option-for-log-y-scale" class="level3">
+<h3 class="anchored" data-anchor-id="make-combined-histogram-plot-showing-high-percentile-with-option-for-log-y-scale">Make combined histogram plot showing high percentile, with option for log y-scale</h3>
+<ul>
+<li>marks the mean value with a dot and your chosen high percentile value with a vertical line</li>
+<li>linear scale is shown if log_y_axis=False</li>
+<li>log y-scale plots are less useful for temperature than precipitation unless you want to see really low probability events, or check if the distribution is close to Gaussian</li>
+<li>A Gaussian distribution will look like an upside down parabola</li>
+</ul>
+<div id="cell-34" class="cell" data-execution_count="25">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#log_y_axis=True  #value has been set above; on comment to set here. False for a linear y-axis </span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">5</span>,<span class="dv">5</span>))</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>fontsize<span class="op">=</span><span class="dv">12</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>xmin<span class="op">=</span><span class="dv">240</span>  <span class="co"># to zoom in x, change this value</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>xmax<span class="op">=</span><span class="dv">325</span>  <span class="co"># to zoom in x, change this value</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>ymax<span class="op">=</span><span class="fl">0.1</span> <span class="co">#sets the yscale for the figure</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(<span class="dv">111</span>)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>ax.bar(bin_centers, hist_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'0'</span>, lw<span class="op">=</span><span class="dv">0</span>, label<span class="op">=</span><span class="st">'hist. ('</span><span class="op">+</span>hist_years<span class="op">+</span><span class="st">')'</span>, zorder<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>ax.bar(bin_centers, ssp_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'red'</span>, lw<span class="op">=</span><span class="dv">0</span>, label<span class="op">=</span><span class="st">'ssp585'</span> <span class="op">+</span><span class="st">' ('</span><span class="op">+</span>ssp_years<span class="op">+</span><span class="st">')'</span>, zorder<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>ax2.set_xlim(xmin, xmax)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>ax2.set_ylim(<span class="dv">10</span><span class="op">**-</span><span class="fl">8.5</span>, ymax)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Probability density'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Surface Air Temperature (K)'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Histograms for '</span><span class="op">+</span>model_name<span class="op">+</span><span class="st">' ('</span><span class="op">+</span>season<span class="op">+</span><span class="st">')'</span><span class="op">+</span><span class="st">'</span><span class="ch">\n</span><span class="st">('</span><span class="op">+</span>hist_years<span class="op">+</span><span class="st">') vs. ('</span><span class="op">+</span>ssp_years<span class="op">+</span><span class="st">')</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span>region, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>ax.scatter(x<span class="op">=</span>hist_mean, y<span class="op">=</span>ymax, s<span class="op">=</span><span class="dv">50</span>, marker<span class="op">=</span><span class="st">'o'</span>, clip_on<span class="op">=</span><span class="va">False</span>, color<span class="op">=</span><span class="st">'0.5'</span>, label<span class="op">=</span><span class="st">'hist. mean ('</span><span class="op">+</span><span class="st">'</span><span class="sc">{0:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(hist_mean)<span class="op">+</span><span class="st">' K)'</span>)</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>ax.scatter(x<span class="op">=</span>ssp_mean, y<span class="op">=</span>ymax, s<span class="op">=</span><span class="dv">50</span>, marker<span class="op">=</span><span class="st">'o'</span>, clip_on<span class="op">=</span><span class="va">False</span>, color<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'ssp585'</span> <span class="op">+</span><span class="st">' mean ('</span><span class="op">+</span><span class="st">'</span><span class="sc">{0:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(ssp_mean)<span class="op">+</span><span class="st">' K)'</span>)</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>ax.axvline(value_hi_hist, lw<span class="op">=</span><span class="dv">2</span>, c<span class="op">=</span><span class="st">'0'</span>)</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>ax.axvline(value_hi_ssp, lw<span class="op">=</span><span class="dv">2</span>, c<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> log_y_axis:</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    ax.set_yscale(<span class="st">'log'</span>) <span class="co"># use log scale</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>ax.tick_params(labelsize<span class="op">=</span>fontsize)</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>handles, labels <span class="op">=</span> ax.get_legend_handles_labels()</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>ax.legend(handles[::<span class="op">-</span><span class="dv">1</span>], labels[::<span class="op">-</span><span class="dv">1</span>], loc<span class="op">=</span><span class="dv">0</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>ax.grid()</span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="aos112_lab2_daily_tas_2024_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="calculate-the-change-of-the-mean-of-the-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-the-change-of-the-mean-of-the-distributions">Calculate the change of the mean of the distributions</h3>
+<div id="cell-36" class="cell" data-execution_count="26">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Difference between mean for'</span>, <span class="st">'ssp585'</span>,<span class="st">'and historical ='</span>,<span class="bu">str</span>(<span class="bu">round</span> (ssp_mean<span class="op">-</span>hist_mean, <span class="dv">2</span>)), units)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Difference between mean for ssp585 and historical = 2.76 C</code></pre>
+</div>
+</div>
+</section>
+<section id="calculate-how-the-value-at-a-given-historical-percentile-changes-in-the-ssp-8.5-runs" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-how-the-value-at-a-given-historical-percentile-changes-in-the-ssp-8.5-runs">Calculate how the value at a given historical percentile changes in the ssp 8.5 runs</h3>
+<div id="cell-38" class="cell" data-execution_count="27">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>perc_in_hist <span class="op">=</span> perc_hi <span class="co"># set above, but change here if desired</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate the value (in degrees Celsius) that is at the 99th percentile</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>value_hist <span class="op">=</span> scipy.stats.scoreatpercentile(model_hist, perc_in_hist)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'HISTORICAL: '</span>, <span class="st">'</span><span class="sc">{:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(value_hist)<span class="op">+</span> units <span class="op">+</span><span class="st">' is the '</span><span class="op">+</span><span class="bu">str</span>(perc_in_hist)<span class="op">+</span><span class="st">'th percentile'</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co"># now calculate how the probability of this event changes in ssp 8.5</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>perc_in_ssp <span class="op">=</span> scipy.stats.percentileofscore(model_ssp.flatten(), value_hist)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'FUTURE:     '</span>, <span class="st">'</span><span class="sc">{:.2f}</span><span class="st">'</span>.<span class="bu">format</span>(perc_in_ssp)<span class="op">+</span><span class="st">'</span><span class="sc">% i</span><span class="st">s the percentile for this value in '</span>, <span class="st">'ssp585'</span>)</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate the fractional increase in likelihood</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>fraction <span class="op">=</span> (<span class="dv">100</span><span class="op">-</span>perc_in_ssp)<span class="op">/</span>(<span class="dv">100</span><span class="op">-</span>perc_in_hist)</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'This temperature value has become '</span><span class="op">+</span><span class="st">'</span><span class="sc">{:.2f}</span><span class="st">'</span>.<span class="bu">format</span>(fraction)<span class="op">+</span><span class="st">' times as likely in'</span>, <span class="st">'ssp585'</span>,<span class="st">'relative to historical'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>HISTORICAL:  33.3C is the 99.0th percentile
+FUTURE:      93.52% is the percentile for this value in  ssp585
+
+This temperature value has become 6.48 times as likely in ssp585 relative to historical</code></pre>
+</div>
+</div>
+</section>
+<section id="count-the-number-of-occurrences-above-this-percentile-value" class="level3">
+<h3 class="anchored" data-anchor-id="count-the-number-of-occurrences-above-this-percentile-value">Count the number of occurrences above this percentile value</h3>
+<ul>
+<li>Approximate by counting events above this percentile value</li>
+</ul>
+<div id="cell-40" class="cell" data-execution_count="28">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'HISTORICAL: '</span>, np.<span class="bu">sum</span>(model_hist<span class="op">&gt;=</span>value_hist),<span class="st">'is the number of hot days above the'</span>,perc_in_hist,<span class="st">'th percentile of '</span><span class="op">+</span><span class="bu">str</span>(<span class="bu">round</span>(value_hist, <span class="dv">2</span>)),units)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'FUTURE:     '</span>, np.<span class="bu">sum</span>(model_ssp<span class="op">&gt;=</span>value_hist),<span class="st">'is the number of hot days above the historical'</span>,perc_in_hist,<span class="st">'th percentile for'</span>, <span class="st">'ssp585'</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'</span><span class="sc">{:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(np.<span class="bu">sum</span>(model_ssp<span class="op">&gt;=</span>value_hist)<span class="op">/</span>np.<span class="bu">sum</span>(model_hist<span class="op">&gt;=</span>value_hist)),<span class="st">'is the ratio of '</span>, <span class="st">'ssp585'</span>,<span class="st">' to historical days above this threshold'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>HISTORICAL:  137983 is the number of hot days above the 99.0 th percentile of 33.28 C
+FUTURE:      893883 is the number of hot days above the historical 99.0 th percentile for ssp585
+
+6.5 is the ratio of  ssp585  to historical days above this threshold</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="section-2" class="level1">
+<h1>==================================================</h1>
+</section>
+<section id="extreme-value-calculations" class="level1">
+<h1>Extreme value calculations</h1>
+</section>
+<section id="section-3" class="level1">
+<h1>==================================================</h1>
+<section id="before-we-do-any-calculations-lets-visualize-what-annual-extremes-look-like" class="level3">
+<h3 class="anchored" data-anchor-id="before-we-do-any-calculations-lets-visualize-what-annual-extremes-look-like">Before we do any calculations, let’s visualize what annual extremes look like</h3>
+<ul>
+<li>Do this for the historical time period, from 1995 to 2000, for the middle lat/lon in the series</li>
+</ul>
+<div id="cell-43" class="cell" data-execution_count="29">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>middle_lat <span class="op">=</span> (lat_start <span class="op">+</span> lat_end) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>middle_lon <span class="op">=</span> (lon_start <span class="op">+</span> lon_end) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> <span class="dv">1990</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>end <span class="op">=</span> <span class="dv">1995</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>model_hist_ann_series <span class="op">=</span> datasets_subset[model_name][<span class="st">'tas'</span>].sel(time<span class="op">=</span><span class="bu">slice</span>(<span class="ss">f'</span><span class="sc">{</span>start<span class="sc">}</span><span class="ss">-01-01'</span>, <span class="ss">f'</span><span class="sc">{</span>end<span class="sc">}</span><span class="ss">-12-31'</span>)).sel(lat <span class="op">=</span> middle_lat, lon <span class="op">=</span> middle_lon, method<span class="op">=</span><span class="st">'nearest'</span>) <span class="co"># select closest to midpoint </span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co"># fix time issue</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>model_hist_ann_series[<span class="st">'time'</span>] <span class="op">=</span> model_hist_ann_series.indexes[<span class="st">'time'</span>].to_datetimeindex()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_1656435/661686542.py:10: RuntimeWarning: Converting a CFTimeIndex with dates from a non-standard calendar, 'noleap', to a pandas.DatetimeIndex, which uses dates from the standard calendar.  This may lead to subtle errors in operations that depend on the length of time between dates.
+  model_hist_ann_series['time'] = model_hist_ann_series.indexes['time'].to_datetimeindex()</code></pre>
+</div>
+</div>
+<div id="cell-44" class="cell" data-execution_count="30">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>grid_lat <span class="op">=</span> model_hist_ann_series.lat.values</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>grid_lon <span class="op">=</span> model_hist_ann_series.lon.values</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>fontsize <span class="op">=</span> <span class="dv">12</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="dv">3</span>))</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> fig.add_subplot(<span class="dv">121</span>)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>ax1.plot(model_hist_ann_series.time, model_hist_ann_series, c<span class="op">=</span><span class="st">'0.25'</span>)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1.scatter(model_hist_ann_max.year, model_hist_ann_max, color='firebrick', label='max annual\ntemp. values') # need to figure out how to plot annual maximum values </span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>ax1.tick_params(labelsize<span class="op">=</span>fontsize)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>ax1.set_title(region <span class="op">+</span> <span class="st">' daily surface air temperature during '</span><span class="op">+</span><span class="bu">str</span>(start)<span class="op">+</span><span class="st">'-'</span><span class="op">+</span><span class="bu">str</span>(end), fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Year'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(units, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>ax1.grid()</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="co"># legend = ax1.legend(fontsize=fontsize)</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="co"># plot grid point on map</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> fig.add_subplot(<span class="dv">122</span>, projection<span class="op">=</span>ccrs.PlateCarree())</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>ax2.set_extent([region_dict[region][<span class="dv">2</span>], region_dict[region][<span class="dv">3</span>], region_dict[region][<span class="dv">0</span>], region_dict[region][<span class="dv">1</span>]], crs<span class="op">=</span>ccrs.PlateCarree())</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>ax2.add_feature(cfeature.BORDERS, linestyle<span class="op">=</span><span class="st">':'</span>)</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>ax2.add_feature(cfeature.STATES, linestyle<span class="op">=</span><span class="st">':'</span>)</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>ax2.add_feature(cfeature.COASTLINE)</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a><span class="co"># ax2.set_global()</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>ax2.plot(grid_lon, grid_lat, marker<span class="op">=</span><span class="st">'*'</span>, markerfacecolor <span class="op">=</span> <span class="st">'red'</span>, markeredgecolor <span class="op">=</span> <span class="st">'orange'</span>, markersize<span class="op">=</span><span class="dv">12</span>, transform<span class="op">=</span>ccrs.PlateCarree())</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'Middle Grid point'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="aos112_lab2_daily_tas_2024_files/figure-html/cell-23-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-45" class="cell" data-execution_count="33">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">## subset time indices</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co">## time_array_hist = time_variable_hist_converted[time_indices_hist]</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co">## time_array_ssp = time_variable_ssp_converted[time_indices_ssp]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-46" class="cell" data-execution_count="69">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># middle_lat = round(model_hist_pr.shape[1]/2)</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># middle_lon = round(model_hist_pr.shape[2]/2)</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># start = 1990</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># end = 1995 # must not go above 2001</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co"># nyears = end-start</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="co"># # subset time between two years</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="co"># year_indices_time_span = [t.year in range(start, end) for t in time_array_hist]</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="co"># time_array_time_span = np.array(([dt.datetime(t.year,t.month,t.day) \</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="co">#                                      for t in time_array_hist[year_indices_time_span]]))</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="co"># model_hist_pr_time_span = model_hist_pr[year_indices_time_span, middle_lat, middle_lon]</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a><span class="co"># max_precip_time_span = []</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a><span class="co"># max_precip_time_span_dates = []</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a><span class="co"># for year_idx in range(nyears):</span></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a><span class="co">#     current_year = time_array_time_span[0].year+year_idx</span></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a><span class="co">#     year_indices = np.array([t.year==current_year for t in time_array_time_span]) # true when current year</span></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a><span class="co">#     max_precip_time_span.append(np.max(model_hist_pr_time_span[year_indices]))</span></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a><span class="co">#     max_idx = int(np.argmax(model_hist_pr_time_span[year_indices]))</span></span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a><span class="co">#     max_precip_time_span_dates.append(time_array_time_span[year_indices][max_idx])</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-47" class="cell" data-execution_count="70">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fontsize = 12</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="co"># grid_lat = model_lat[model_lat_indices][middle_lat]</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co"># grid_lon = model_lon[model_lon_indices][middle_lon]</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="co"># fig = plt.figure(figsize=(8.5,3))</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1 = fig.add_subplot(121)</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1.plot(time_array_time_span, model_hist_pr_time_span, c='0.25')</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1.scatter(max_precip_time_span_dates, max_precip_time_span, color='firebrick', label='max annual\ntemp. values')</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1.tick_params(labelsize=fontsize)</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1.set_title(region + ' daily surface air temperature during '+str(start)+'-'+str(end), fontsize=fontsize)</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1.set_xlabel('Year', fontsize=fontsize)</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1.set_ylabel('K', fontsize=fontsize)</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ax1.grid()</span></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a><span class="co"># legend = ax1.legend(fontsize=fontsize)</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a><span class="co"># # plot grid point on map</span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a><span class="co"># ax2 = fig.add_subplot(122, projection=ccrs.PlateCarree())</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a><span class="co"># ax2.set_extent(region_dict[region], crs=ccrs.PlateCarree())</span></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a><span class="co"># ax2.add_feature(cfeature.BORDERS, linestyle=':')</span></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a><span class="co"># ax2.add_feature(cfeature.STATES, linestyle=':')</span></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a><span class="co"># ax2.add_feature(cfeature.COASTLINE)</span></span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a><span class="co"># # ax2.set_global()</span></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a><span class="co"># ax2.plot(grid_lon, grid_lat, marker='*', markerfacecolor = 'red', markeredgecolor = 'orange', markersize=12, transform=ccrs.PlateCarree())</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a><span class="co"># ax2.set_title('Middle Grid point', fontsize=fontsize)</span></span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a><span class="co"># fig.tight_layout()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="cell-48" class="cell" data-execution_count="37">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get annual max values for each year at each location</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>annual_max_hist_da <span class="op">=</span> model_hist_da.groupby(<span class="st">'time.year'</span>).<span class="bu">max</span>(dim<span class="op">=</span><span class="st">'time'</span>)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>annual_max_ssp_da <span class="op">=</span> model_ssp_da.groupby(<span class="st">'time.year'</span>).<span class="bu">max</span>(dim<span class="op">=</span><span class="st">'time'</span>)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>annual_max_hist <span class="op">=</span> annual_max_hist_da.to_numpy()</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>annual_max_ssp <span class="op">=</span> annual_max_ssp_da.to_numpy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="collect-annual-max-values-for-historical-temperature" class="level3">
+<h3 class="anchored" data-anchor-id="collect-annual-max-values-for-historical-temperature">Collect annual max values for historical temperature</h3>
+<div id="cell-50" class="cell" data-execution_count="72">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># nyears_hist = time_array_hist[-1].year-time_array_hist[0].year+1</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="co"># nyears_ssp = time_array_ssp[-1].year-time_array_ssp[0].year+1</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="co"># #if obs:  nyears_obs = time_array_obs[-1].year-time_array_obs[0].year+1</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="co"># annual_max_hist_pr = np.zeros((nyears_hist, \</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="co">#                                   sum(model_lat_indices), \</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co">#                                   sum(model_lon_indices)))</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="co"># annual_max_ssp_pr = np.zeros((nyears_ssp, \</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a><span class="co">#                                  sum(model_lat_indices), \</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="co">#                                  sum(model_lon_indices)))</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a><span class="co"># # loop through each year from the beginning to end of "time_array_hist"</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a><span class="co"># for year_idx in range(nyears_hist):</span></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a><span class="co">#     current_year = time_array_hist[0].year+year_idx</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a><span class="co">#     # get the correct indices of those days</span></span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a><span class="co">#     year_indices = np.array([t.year==current_year for t in time_array_hist])</span></span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a><span class="co">#     # for each lat/lon combo, loop through and get the max tas value</span></span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a><span class="co">#     for lat_idx in range(sum(model_lat_indices)):</span></span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a><span class="co">#         for lon_idx in range(sum(model_lon_indices)): </span></span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a><span class="co">#             annual_max_hist_pr[year_idx, lat_idx, lon_idx] = np.max(model_hist_pr[year_indices, lat_idx, lon_idx])</span></span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a><span class="co"># # loop through each year from the beginning to end of "time_array_hist"</span></span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a><span class="co"># for year_idx in range(nyears_ssp):</span></span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a><span class="co">#     current_year = time_array_ssp[0].year+year_idx</span></span>
+<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a><span class="co">#     # get the correct indices of those days</span></span>
+<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a><span class="co">#     year_indices = np.array([t.year==current_year for t in time_array_ssp])</span></span>
+<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a><span class="co">#     # for each lat/lon combo, loop through and get the max tas value</span></span>
+<span id="cb38-29"><a href="#cb38-29" aria-hidden="true" tabindex="-1"></a><span class="co">#     for lat_idx in range(sum(model_lat_indices)):</span></span>
+<span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a><span class="co">#         for lon_idx in range(sum(model_lon_indices)): </span></span>
+<span id="cb38-31"><a href="#cb38-31" aria-hidden="true" tabindex="-1"></a><span class="co">#             annual_max_ssp_pr[year_idx, lat_idx, lon_idx] = np.max(model_ssp_pr[year_indices, lat_idx, lon_idx])</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="create-extreme-value-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="create-extreme-value-distributions">Create extreme value distributions</h3>
+<div id="cell-52" class="cell" data-execution_count="73">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>bin_lo<span class="op">=-</span><span class="dv">50</span> <span class="co">#sets the lowest bin value</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="co">#bins = numpy.logspace(-1,numpy.log10(max(model_ssp_pr.max(), model_hist_pr.max())),100) # log spaced bins</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co">#bins = numpy.linspace(0,270,45) # linearly spaced bins set by hand</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> np.linspace(bin_lo,(<span class="bu">max</span>(model_ssp.<span class="bu">max</span>(), model_hist.<span class="bu">max</span>()))<span class="op">*</span><span class="fl">1.001</span>,<span class="dv">45</span>) <span class="co"># linearly spaced bins</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>hist_histogram, bin_edges <span class="op">=</span> np.histogram(annual_max_hist, bins<span class="op">=</span>bins, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>ssp_histogram, bin_edges <span class="op">=</span> np.histogram(annual_max_ssp, bins<span class="op">=</span>bins, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>bin_centers <span class="op">=</span> (bin_edges[:<span class="op">-</span><span class="dv">1</span>] <span class="op">+</span> bin_edges[<span class="dv">1</span>:])<span class="op">/</span><span class="dv">2</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>bin_width <span class="op">=</span> np.diff(bin_edges)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="calculate-magnitudes-of-return-intervals" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-magnitudes-of-return-intervals">Calculate magnitudes of return intervals</h3>
+<p>Edit <strong><code>return_period</code></strong> to change</p>
+<div id="cell-54" class="cell" data-execution_count="38">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#####################################################################################</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co">########## CHANGE THE EVENT MAGNITUDE OR RETURN PERIOD YOU WANT TO INSPECT ##########</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="co">#####################################################################################</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>event_magnitude <span class="op">=</span> <span class="dv">30</span> <span class="co"># C</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>return_period <span class="op">=</span> <span class="dv">20</span> <span class="co"># specify the return period (i.e., an X-year event)</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="co">#####################################################################################</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>return_perc <span class="op">=</span> <span class="dv">1</span><span class="op">-</span>(<span class="dv">1</span><span class="op">/</span>return_period)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>return_val_hist <span class="op">=</span> scipy.stats.scoreatpercentile(annual_max_hist, return_perc<span class="op">*</span><span class="dv">100</span>)</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>return_val_ssp <span class="op">=</span> scipy.stats.scoreatpercentile(annual_max_ssp, return_perc<span class="op">*</span><span class="dv">100</span>)</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>return_period_hist <span class="op">=</span> <span class="dv">1</span><span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>scipy.stats.percentileofscore(annual_max_hist.flatten(), event_magnitude)<span class="op">/</span><span class="fl">100.</span>)</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>return_period_ssp <span class="op">=</span> <span class="dv">1</span><span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>scipy.stats.percentileofscore(annual_max_ssp.flatten(), event_magnitude)<span class="op">/</span><span class="fl">100.</span>)</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a><span class="co"># print the magnitude of an X-year event</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'HISTORICAL:  The'</span>, <span class="op">\</span></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>      <span class="bu">str</span>(<span class="bu">int</span>(return_period))<span class="op">+</span><span class="st">'-year return value for daily extremes is about'</span>,<span class="op">\</span></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>      <span class="st">'</span><span class="sc">{:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(return_val_hist),<span class="op">\</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>      units)</span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'FUTURE:      The'</span>, <span class="op">\</span></span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>      <span class="bu">str</span>(<span class="bu">int</span>(return_period))<span class="op">+</span><span class="st">'-year return value for daily extremes is about'</span>,<span class="op">\</span></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">'</span><span class="sc">{:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(return_val_ssp),<span class="op">\</span></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>      units)</span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a><span class="co"># print the return period of a given magnitude</span></span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'HISTORICAL:  A'</span>, <span class="op">\</span></span>
+<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>      <span class="bu">str</span>(event_magnitude)<span class="op">+</span>units<span class="op">+</span><span class="st">' day has a return period of'</span>,<span class="op">\</span></span>
+<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>      <span class="st">'</span><span class="sc">{:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(return_period_hist),<span class="op">\</span></span>
+<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a>      <span class="st">'years'</span>)</span>
+<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'FUTURE:      A'</span>, <span class="op">\</span></span>
+<span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a>      <span class="bu">str</span>(event_magnitude)<span class="op">+</span>units<span class="op">+</span><span class="st">' day has a return period of'</span>,<span class="op">\</span></span>
+<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a>      <span class="st">'</span><span class="sc">{:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(return_period_ssp),<span class="op">\</span></span>
+<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a>      <span class="st">'years'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>HISTORICAL:  The 20-year return value for daily extremes is about 36.1 C
+FUTURE:      The 20-year return value for daily extremes is about 39.9 C
+
+HISTORICAL:  A 30C day has a return period of 3.4 years
+FUTURE:      A 30C day has a return period of 1.3 years</code></pre>
+</div>
+</div>
+</section>
+<section id="from-the-return-period-of-events-above-the-specified-threshold-calculate-risk-ratio-etc." class="level3">
+<h3 class="anchored" data-anchor-id="from-the-return-period-of-events-above-the-specified-threshold-calculate-risk-ratio-etc.">From the return period of events above the specified threshold, calculate risk ratio etc.</h3>
+<section id="this-is-similar-to-what-is-used-in-probabilistic-event-attribution-for-an-event-of-that-size" class="level4">
+<h4 class="anchored" data-anchor-id="this-is-similar-to-what-is-used-in-probabilistic-event-attribution-for-an-event-of-that-size">This is similar to what is used in probabilistic event attribution for an event of that size</h4>
+<ul>
+<li>probability of exceedance of the threshold for historical and ssp, p_0 and p_1, are given by:</li>
+<li>p_0=1/return_period_hist ; p_1=1/return_period_ssp</li>
+<li>Risk Ratio for SSP/Historical p_1/p_0</li>
+<li>Increased Risk (p_1/p_0 -1)</li>
+<li>Fraction of Attributable Risk (1-p_0/p_1)</li>
+</ul>
+<div id="cell-56" class="cell" data-execution_count="39">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'For p_0 and p_1 the probability of exceeding'</span>, event_magnitude, units, <span class="st">'in historical/ssp scenario'</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'The Risk Ratio for ssp585/Historical p_1/p_0 is a factor of'</span>, <span class="bu">round</span>(return_period_hist<span class="op">/</span>return_period_ssp,<span class="dv">3</span>))</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'The Increased Risk (p_1/p_0 -1) as a percent='</span>, <span class="bu">round</span>(return_period_hist<span class="op">/</span>return_period_ssp<span class="op">-</span><span class="fl">1.</span>,<span class="dv">3</span>)<span class="op">*</span><span class="fl">100.</span>,<span class="st">'%'</span>)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'The Fraction of Attributable Risk (1-p_0/p_1) as a percent='</span>, <span class="bu">round</span>((<span class="fl">1.</span><span class="op">-</span>return_period_ssp<span class="op">/</span>return_period_hist)<span class="op">*</span><span class="fl">100.</span>,<span class="dv">2</span>),<span class="st">'%'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>For p_0 and p_1 the probability of exceeding 30 C in historical/ssp scenario
+The Risk Ratio for ssp585/Historical p_1/p_0 is a factor of 2.512
+The Increased Risk (p_1/p_0 -1) as a percent= 151.2 %
+The Fraction of Attributable Risk (1-p_0/p_1) as a percent= 60.19 %</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="plot-these-results" class="level3">
+<h3 class="anchored" data-anchor-id="plot-these-results">Plot these results</h3>
+<p>The plots below include the N-year return period value calculated above as vertical lines</p>
+<div id="cell-58" class="cell" data-execution_count="40">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.5</span>))</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>fontsize<span class="op">=</span><span class="dv">12</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> return_period <span class="op">&gt;</span><span class="dv">30</span>: t_offset <span class="op">=</span> <span class="op">-</span><span class="dv">5</span><span class="op">;</span> horiz_align<span class="op">=</span><span class="st">'right'</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:  t_offset <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> horiz_align<span class="op">=</span><span class="st">'left'</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>max_val <span class="op">=</span> np.<span class="bu">max</span>([np.<span class="bu">max</span>(ssp_histogram), np.<span class="bu">max</span>(hist_histogram)])</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> fig.add_subplot(<span class="dv">121</span>)</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>ax1.bar(bin_centers, hist_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'0.5'</span>, edgecolor<span class="op">=</span><span class="st">'0.5'</span>, label<span class="op">=</span><span class="st">'historical'</span>)</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>ax1.set_xlim(bins[<span class="dv">0</span>], bins[<span class="op">-</span><span class="dv">1</span>]<span class="op">*</span><span class="fl">1.01</span>)</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>ax1.set_ylim(<span class="dv">0</span>, max_val<span class="op">*</span><span class="fl">1.025</span>)</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>ax1.tick_params(labelsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Probability density'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Surface air temperature (K)'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">'Extreme value histogram for</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span>model_name<span class="op">+</span><span class="st">' ('</span><span class="op">+</span>season<span class="op">+</span><span class="st">')'</span><span class="op">+</span><span class="st">' ('</span><span class="op">+</span>hist_years<span class="op">+</span><span class="st">')</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span>region, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a>ax1.grid()</span>
+<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a>ax1.axvline(return_val_hist, lw<span class="op">=</span><span class="dv">1</span>, c<span class="op">=</span><span class="st">'0'</span>)</span>
+<span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a>t1<span class="op">=</span>ax1.text(s<span class="op">=</span><span class="st">'</span><span class="sc">{:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(return_val_hist)<span class="op">+</span><span class="st">' K</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span><span class="bu">str</span>(return_period)<span class="op">+</span><span class="st">'-year</span><span class="ch">\n</span><span class="st">return value</span><span class="ch">\n</span><span class="st">(CALCULATED)'</span>, <span class="op">\</span></span>
+<span id="cb44-20"><a href="#cb44-20" aria-hidden="true" tabindex="-1"></a>           ha<span class="op">=</span>horiz_align, va<span class="op">=</span><span class="st">'top'</span>, x<span class="op">=</span>return_val_hist<span class="op">+</span>t_offset, y<span class="op">=</span>max_val<span class="op">/</span><span class="dv">2</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-21"><a href="#cb44-21" aria-hidden="true" tabindex="-1"></a>t1.set_bbox(<span class="bu">dict</span>(color<span class="op">=</span><span class="st">'1'</span>, alpha<span class="op">=</span><span class="fl">0.75</span>))</span>
+<span id="cb44-22"><a href="#cb44-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-23"><a href="#cb44-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-24"><a href="#cb44-24" aria-hidden="true" tabindex="-1"></a>handles, labels <span class="op">=</span> ax1.get_legend_handles_labels()</span>
+<span id="cb44-25"><a href="#cb44-25" aria-hidden="true" tabindex="-1"></a>ax1.legend(handles[::<span class="op">-</span><span class="dv">1</span>], labels[::<span class="op">-</span><span class="dv">1</span>], loc<span class="op">=</span><span class="dv">0</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-26"><a href="#cb44-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-27"><a href="#cb44-27" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> fig.add_subplot(<span class="dv">122</span>)</span>
+<span id="cb44-28"><a href="#cb44-28" aria-hidden="true" tabindex="-1"></a>ax2.bar(bin_centers, ssp_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'red'</span>, edgecolor<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">'ssp585'</span>)</span>
+<span id="cb44-29"><a href="#cb44-29" aria-hidden="true" tabindex="-1"></a>ax2.set_xlim(bins[<span class="dv">0</span>], bins[<span class="op">-</span><span class="dv">1</span>]<span class="op">*</span><span class="fl">1.01</span>)</span>
+<span id="cb44-30"><a href="#cb44-30" aria-hidden="true" tabindex="-1"></a>ax2.set_ylim(<span class="dv">0</span>, max_val<span class="op">*</span><span class="fl">1.025</span>)</span>
+<span id="cb44-31"><a href="#cb44-31" aria-hidden="true" tabindex="-1"></a>ax2.tick_params(labelsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-32"><a href="#cb44-32" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Probability density'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-33"><a href="#cb44-33" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'Surface air temperature (K)'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-34"><a href="#cb44-34" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">'Extreme value histogram for</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span>model_name<span class="op">+</span><span class="st">' ('</span><span class="op">+</span>season<span class="op">+</span><span class="st">')'</span><span class="op">+</span><span class="st">' ('</span><span class="op">+</span>ssp_years<span class="op">+</span><span class="st">')</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span>region, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-35"><a href="#cb44-35" aria-hidden="true" tabindex="-1"></a>ax2.grid()</span>
+<span id="cb44-36"><a href="#cb44-36" aria-hidden="true" tabindex="-1"></a>ax2.axvline(return_val_ssp, lw<span class="op">=</span><span class="dv">2</span>, c<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb44-37"><a href="#cb44-37" aria-hidden="true" tabindex="-1"></a>t1<span class="op">=</span>ax2.text(s<span class="op">=</span><span class="st">'</span><span class="sc">{:.1f}</span><span class="st">'</span>.<span class="bu">format</span>(return_val_ssp)<span class="op">+</span><span class="st">' K</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span><span class="bu">str</span>(return_period)<span class="op">+</span><span class="st">'-year</span><span class="ch">\n</span><span class="st">return value</span><span class="ch">\n</span><span class="st">(CALCULATED)'</span>, <span class="op">\</span></span>
+<span id="cb44-38"><a href="#cb44-38" aria-hidden="true" tabindex="-1"></a>           ha<span class="op">=</span>horiz_align, va<span class="op">=</span><span class="st">'top'</span>, x<span class="op">=</span>return_val_ssp<span class="op">+</span>t_offset, y<span class="op">=</span>max_val<span class="op">/</span><span class="dv">2</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-39"><a href="#cb44-39" aria-hidden="true" tabindex="-1"></a>t1.set_bbox(<span class="bu">dict</span>(color<span class="op">=</span><span class="st">'1'</span>, alpha<span class="op">=</span><span class="fl">0.75</span>))</span>
+<span id="cb44-40"><a href="#cb44-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-41"><a href="#cb44-41" aria-hidden="true" tabindex="-1"></a>handles, labels <span class="op">=</span> ax2.get_legend_handles_labels()</span>
+<span id="cb44-42"><a href="#cb44-42" aria-hidden="true" tabindex="-1"></a>ax2.legend(handles[::<span class="op">-</span><span class="dv">1</span>], labels[::<span class="op">-</span><span class="dv">1</span>], loc<span class="op">=</span><span class="dv">0</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb44-43"><a href="#cb44-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-44"><a href="#cb44-44" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="aos112_lab2_daily_tas_2024_files/figure-html/cell-32-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-59" class="cell" data-execution_count="41">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">5</span>,<span class="dv">5</span>))</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>fontsize<span class="op">=</span><span class="dv">12</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(<span class="dv">111</span>)</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>ax.bar(bin_centers, hist_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'0'</span>, lw<span class="op">=</span><span class="dv">0</span>, label<span class="op">=</span><span class="st">'hist. ('</span><span class="op">+</span>hist_years<span class="op">+</span><span class="st">')'</span>, zorder<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>ax.bar(bin_centers, ssp_histogram, align<span class="op">=</span><span class="st">'center'</span>, width<span class="op">=</span>bin_width, color<span class="op">=</span><span class="st">'red'</span>, lw<span class="op">=</span><span class="dv">0</span>, label<span class="op">=</span><span class="st">'ssp585'</span> <span class="op">+</span><span class="st">' ('</span><span class="op">+</span>ssp_years<span class="op">+</span><span class="st">')'</span>, zorder<span class="op">=</span><span class="dv">0</span>, alpha<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(bins[<span class="dv">0</span>], bins[<span class="op">-</span><span class="dv">1</span>]<span class="op">*</span><span class="fl">1.01</span>)</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, max_val<span class="op">*</span><span class="fl">1.025</span>)</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Probability density'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Surface air temperature (K)'</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Extreme value histogram for</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span>model_name<span class="op">+</span><span class="st">' ('</span><span class="op">+</span>season<span class="op">+</span><span class="st">')</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span><span class="st">'('</span><span class="op">+</span>hist_years<span class="op">+</span><span class="st">') vs. ('</span><span class="op">+</span>ssp_years<span class="op">+</span><span class="st">')</span><span class="ch">\n</span><span class="st">'</span><span class="op">+</span>region, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>ax.tick_params(labelsize<span class="op">=</span>fontsize)</span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>ax.axvline(return_val_hist, lw<span class="op">=</span><span class="dv">2</span>, c<span class="op">=</span><span class="st">'0'</span>)</span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>ax.axvline(return_val_ssp, lw<span class="op">=</span><span class="dv">2</span>, c<span class="op">=</span><span class="st">'darkred'</span>)</span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a>t<span class="op">=</span>ax.text(s<span class="op">=</span><span class="bu">str</span>(return_period)<span class="op">+</span><span class="st">'-year</span><span class="ch">\n</span><span class="st">return</span><span class="ch">\n</span><span class="st">values</span><span class="ch">\n</span><span class="st">(CALCULATED)'</span>, <span class="op">\</span></span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a>           ha<span class="op">=</span><span class="st">'left'</span>, va<span class="op">=</span><span class="st">'top'</span>, x<span class="op">=</span><span class="bu">max</span>(return_val_hist,return_val_ssp)<span class="op">+</span><span class="dv">1</span>, y<span class="op">=</span>max_val<span class="op">/</span><span class="dv">2</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a>t.set_bbox(<span class="bu">dict</span>(color<span class="op">=</span><span class="st">'1'</span>, alpha<span class="op">=</span><span class="fl">0.75</span>))</span>
+<span id="cb45-20"><a href="#cb45-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-21"><a href="#cb45-21" aria-hidden="true" tabindex="-1"></a>handles, labels <span class="op">=</span> ax.get_legend_handles_labels()</span>
+<span id="cb45-22"><a href="#cb45-22" aria-hidden="true" tabindex="-1"></a>ax.legend(handles[::<span class="op">-</span><span class="dv">1</span>], labels[::<span class="op">-</span><span class="dv">1</span>], loc<span class="op">=</span><span class="dv">0</span>, fontsize<span class="op">=</span>fontsize)</span>
+<span id="cb45-23"><a href="#cb45-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-24"><a href="#cb45-24" aria-hidden="true" tabindex="-1"></a>ax.grid()</span>
+<span id="cb45-25"><a href="#cb45-25" aria-hidden="true" tabindex="-1"></a>ax.set_axisbelow(<span class="va">True</span>)</span>
+<span id="cb45-26"><a href="#cb45-26" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="aos112_lab2_daily_tas_2024_files/figure-html/cell-33-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>© 2025, Jillian Dessing</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
