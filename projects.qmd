@@ -1,0 +1,33 @@
+---
+title: Projects
+toc: true
+---
+
+## Analyzing Daily Temperature Extremes from Climate Models using Python
+This project analyzed daily near-surface air temperature from CMIP6 climate model output under the SSP585 high-emissions scenario. I selected a geographic region, computed daily mean, minimum, and maximum temperatures, and identified periods of extreme heat. Time-series plots and distribution analyses reveal variability and tail behavior, highlighting how often heat extremes occur and when they are most likely to develop.
+
+The project strengthened my skills in scientific Python, including xarray, numpy, and geospatial filtering, as well as interpreting climate data through visualizations. The results provide insight into evolving heat extremes with potential relevance for climate risk, insurance exposure, energy demand, and public health.
+
+[View Notebook](aos112_lab2_daily_tas_2024.ipynb){target="_blank"}
+
+
+## Analysis of Extreme Precipitation in Tropical Cyclones (Research Presentation)
+This project examined how climate change influences extreme precipitation, with a focus on tropical cyclones and a detailed analysis of Hurricane Harvey. Peer-reviewed observational studies and high-resolution climate model results were used to evaluate global trends in precipitation extremes, the physical drivers of intensifying rainfall rates, and the role of anthropogenic warming in amplifying storm impacts. This work deepened my understanding of extreme-event behavior while also strengthening general research abilities such as interpreting climate datasets, assessing attribution methods, and presenting atmospheric processes clearly.
+
+[Download the full presentation (PDF)](Dessing_Jillian_TropicalCyclones (1).pdf)
+
+## Modeling Major Hurricane Likelihood from Early Meteorological Predictors (Research Presentation)
+This project used storm-track records from the NOAA International Best Track Archive for Climate Stewardship (IBTrACS). After extensive data cleaning and engineering of key variables such as central pressure, wind speed, storm position, and regional classifications, statistical and machine-learning models were applied to investigate whether early meteorological conditions can predict the likelihood of a cyclone intensifying into a major hurricane. Logistic regression and random forest models were evaluated using AUC, balanced accuracy, and optimal classification thresholds, revealing the variables most strongly associated with major storm development and demonstrating the effectiveness of predictive modeling in early-stage hurricane assessment.
+
+[Download the full presentation (PDF)](140 Final Presentation (2).pdf)
+
+## Modeling County-Level Income and Socioeconomic Patterns Using Multiple Regression
+This project developed a multiple linear regression model to explain variation in county-level per-capita income using demographic, educational, and economic indicators. The analysis included extensive preprocessing, transformation of skewed variables, diagnostic checks for multicollinearity and heteroscedasticity, and selection of the final model using statistical criteria. By evaluating coefficient significance, model assumptions, and predictive performance, the project demonstrated how regression can be used to quantify relationships among socioeconomic variables and identify the strongest predictors of income at the county level.
+
+[Download Report (PDF)](Regression Final Report.pdf)
+
+## Predicting 2020 U.S. Election Outcomes with Classification and Machine Learning
+This project used county-level demographic and economic data to predict the winner of the 2020 U.S. presidential election. After substantial feature engineering—converting demographic counts to proportions, log-transforming skewed variables, imputing missing data, and removing redundant predictors—several classification models were trained, including penalized logistic regression, random forests, boosted trees, KNN, and stacked ensembles. Model performance was compared using 10-fold cross-validation, with tuned boosted tree and stacked models achieving the highest accuracy. The work highlighted how preprocessing decisions, hyperparameter tuning, and model selection influence predictive performance in high-dimensional classification problems.
+
+[Download Report (PDF)](Classification Final Report (1).pdf)
+

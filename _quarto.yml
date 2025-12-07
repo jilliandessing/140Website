@@ -1,0 +1,27 @@
+project:
+  type: website
+
+website:
+  title: "Jillian Dessing"
+  navbar:
+    right:
+      - href: index.qmd
+        text: Home
+      - projects.qmd
+  page-footer: 
+    right: "&copy; 2025, Jillian Dessing"
+
+format:
+  html:
+    theme:
+      - flatly
+      - brand
+    css: styles.css
+    toc: true
+   
+execute: 
+  freeze: auto
+
+
+
+

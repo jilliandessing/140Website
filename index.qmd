@@ -1,0 +1,32 @@
+---
+title: "Jillian Dessing"
+toc: false
+about:
+  template: trestles
+  image: profile.jpg
+  links:
+    - icon: linkedin
+      text: Linkedin
+      href: https://linkedin.com/in/jilliandessing
+    - icon: github
+      text: Github
+      href: https://github.com/jilliandessing
+    - icon: envelope
+      text: Email
+      url: "mailto:jilliandessing@g.ucla.edu"
+---
+
+Jillian Dessing is an undergraduate at UCLA studying Statistics & Data Science and Climate Science, with a growing interest in actuarial science. She is interested in applying climate and statistical modeling to understand how extreme weather and climate change influence risk in property and casualty insurance. Jillian is seeking opportunities that integrate actuarial modeling, risk analytics, and climate science.
+
+When she’s not studying, Jillian enjoys walking on the beach and catching sunsets with her family in San Diego, and seeing the latest Hollywood blockbuster movies with her friends in Los Angeles.
+
+DOWNLOAD [CV](/CV.pdf)
+
+## Education
+
+University of California, Los Angeles | Los Angeles, CA
+*Bachelor of Science in Statistics & Data Science, Climate Science* | Sept 2022 - June 2026
+
+## Experience
+
+Casualty Actuarial Society Student Central Summer Program | June 2025 - August 2025
